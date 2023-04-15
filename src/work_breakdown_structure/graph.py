@@ -85,7 +85,16 @@ class TreeStructureHandler:
 
             tree.extend(child_tree)
 
-        tree.append((self, mean(x for _, x, _ in tree), y))
+        children_only_tree = [
+            (task, x, y) for task, x, y in tree if task in self.children
+        ]
+        x_of_children = [x for task, x, _ in children_only_tree]
+        if len(x_of_children) == 1:
+            x_pos_parent = max(x_of_children)
+        else:
+            x_pos_parent = (max(x_of_children) + min(x_of_children)) / 2
+
+        tree.append((self, x_pos_parent, y))
 
         return tree
 
