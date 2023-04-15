@@ -8,9 +8,17 @@ TASK_DEFAULT_WIDTH_STEP = 200
 TASK_DEFAULT_HEIGHT = 50
 TASK_DEFAULT_HEIGHT_STEP = 100
 
+class WBSFrame(tkinter.Frame):
+
+    def __init__(self, master=None):
+        super().__init__(master)
+
+        canvas = WBSCanvas(self)
+        canvas.pack(fill="both", expand=True)
+
 
 class WBSCanvas(Canvas):
-    def __init__(self, master):
+    def __init__(self, master=None):
         super().__init__(master)
         self.configure(background="azure")
 
@@ -228,9 +236,8 @@ if __name__ == "__main__":
             super().__init__()
             self.geometry("1000x800+200+200")
             self.bind("<Control-w>", lambda e: self.destroy())
-
-            canvas = WBSCanvas(self)
-            canvas.pack(fill="both", expand=True)
+            frame = WBSFrame(self)
+            frame.pack(fill="both", expand=True)
 
     runner = Runner()
     runner.title("WBS")
