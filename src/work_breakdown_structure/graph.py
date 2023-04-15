@@ -84,6 +84,8 @@ class TreeStructureHandler:
     def tree_link(self, other: "TreeStructureHandler") -> None:
         if other.parent is not None:
             raise InvalidLink("Can't have multiple parents :/")
+        if self is other:
+            raise InvalidLink("Can't link to yourself, dummy.")
         other.parent = self
         self.children.append(other)
 
