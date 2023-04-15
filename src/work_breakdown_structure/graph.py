@@ -1,17 +1,22 @@
+import tkinter
 from statistics import mean
-from tkinter import Canvas, Tk, Event, NW
+from tkinter import Canvas, Tk, Event, NW, Text, Label, UNITS, SCROLL, LEFT
 from typing import Tuple, Optional, List, TypeVar
+
+TASK_DEFAULT_WIDTH = 100
+TASK_DEFAULT_WIDTH_STEP = 200
+TASK_DEFAULT_HEIGHT = 50
+TASK_DEFAULT_HEIGHT_STEP = 100
 
 
 class WBSCanvas(Canvas):
     def __init__(self, master):
         super().__init__(master)
-        self.create_oval(0, 0, 10, 10, fill="grey")
-        self.bind("<Double-1>", self.create_task)
         self.configure(background="azure")
 
         self.tasks: List[WBSTaskGraphicalHandler] = []
         self.focus_set()
+        self.bind("<Double-1>", self.create_task)
 
     def canvas_pos(self, event: Event) -> Tuple[int, int]:
         return self.canvasx(event.x), self.canvasy(event.y)
@@ -30,11 +35,14 @@ class WBSCanvas(Canvas):
         tree = metatask.make_tree()
         tree = [(task, x, y) for task, x, y in tree if task != metatask]
         for task, x, y in tree:
-            self.coords(task.rect, x * 70, y * 40, x * 70 + 50, y * 40 + 20)
-            self.coords(task.title, x * 70, y * 40)
+            y -= 1
+            self.coords(
+                task.rect, x * TASK_DEFAULT_WIDTH_STEP, y * TASK_DEFAULT_HEIGHT_STEP
+            )
 
         for task, _, _ in tree:
             task.draw_arrow_to_children()
+
 
 class GraphicalId:
     _id = 0
@@ -84,20 +92,40 @@ class WBSTaskGraphicalHandler(GraphicalId, TreeStructureHandler):
     def __init__(self, canvas: WBSCanvas, x: int, y: int):
         super().__init__()
         self.canvas = canvas
-        self.rect = canvas.create_rectangle(
-            x, y, x + 50, y + 20, fill="AliceBlue", tags=("rectangle", self.id)
+
+        text_widget = Label(
+            master=self.canvas,
+            bg="grey",
+            border=True,
+            text=self.id * 5 + " " + self.id,
+            justify=LEFT,
+            anchor=NW,
+            wraplength=TASK_DEFAULT_WIDTH,
         )
-        self.title = canvas.create_text(
-            x, y, text=str(self.rect), anchor=NW, tags=("rectangle_text", self.id)
+        self.rect = canvas.create_window(
+            x,
+            y,
+            anchor=NW,
+            height=TASK_DEFAULT_HEIGHT,
+            width=TASK_DEFAULT_WIDTH,
+            tags=(
+                "window",
+                self.id,
+            ),
+            window=text_widget,
         )
 
         self.arrow: Optional[int] = None
 
-        self.canvas.tag_bind(self.rect, "<Button1-Motion>", self.arrow_drag)
-        self.canvas.tag_bind(self.rect, "<Button1-ButtonRelease>", self.link_rect)
+        text_widget.bind("<Button1-Motion>", self.arrow_drag)
+        text_widget.bind("<Button1-ButtonRelease>", self.link_rect)
+
+    def get_mouse_position_from_rect(self, event: Event) -> Tuple[int, int]:
+        x_rect, y_rect = self.canvas.coords(self.rect)
+        return event.x + x_rect, event.y + y_rect
 
     def arrow_drag(self, event: Event):
-        xm, ym = self.canvas.canvas_pos(event)
+        xm, ym = self.get_mouse_position_from_rect(event)
 
         if self.arrow is None:
             self.arrow = self.canvas.create_line(
@@ -111,11 +139,11 @@ class WBSTaskGraphicalHandler(GraphicalId, TreeStructureHandler):
         if self.arrow is None:
             return
         # remember this line else we could not find the rectangle we want to link to.
-        self.canvas.tag_lower(self.arrow, "rectangle")
+        self.canvas.tag_lower(self.arrow, "window")
 
-        other_rect = self.canvas.find_closest(
-            *self.canvas.canvas_pos(event), start=self.arrow
-        )[0]
+        xm, ym = self.get_mouse_position_from_rect(event)
+
+        other_rect = self.canvas.find_closest(xm, ym, start=self.arrow)[0]
         try:
             other_task = next(
                 task for task in self.canvas.tasks if task.rect == other_rect
@@ -130,14 +158,17 @@ class WBSTaskGraphicalHandler(GraphicalId, TreeStructureHandler):
             self.arrow = None
 
     def draw_arrow_to_children(self):
-        x0, y0, _, _ = self.canvas.coords(self.rect)
+        x0, y0 = self.canvas.coords(self.rect)
         for child in self.children:
-            x1, y1, _, _ = self.canvas.coords(child.rect)
+            x1, y1 = self.canvas.coords(child.rect)
 
             arrow = self.canvas.create_line(
                 x0, y0, x1, y1, arrow="last", tags=("arrow",)
             )
-            self.canvas.tag_lower(arrow, "rectangle")
+            self.canvas.tag_lower(arrow, "window")
+
+    def __repr__(self):
+        return self.id
 
 
 if __name__ == "__main__":
