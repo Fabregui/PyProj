@@ -158,12 +158,60 @@ class WBSTaskGraphicalHandler(GraphicalId, TreeStructureHandler):
             self.arrow = None
 
     def draw_arrow_to_children(self):
+        """
+        This function takes charge of drawing straight lines with curves from top to bottom.
+        The lines look like :
+
+        |
+        |_____
+             |
+             |
+
+        with bends at the two intersection.
+        """
         x0, y0 = self.canvas.coords(self.rect)
+        x0 += TASK_DEFAULT_WIDTH // 2
+        y0 += TASK_DEFAULT_HEIGHT
         for child in self.children:
             x1, y1 = self.canvas.coords(child.rect)
+            x1 += TASK_DEFAULT_WIDTH // 2
+            curve_factor = 0.5
+            curve_dist = min(
+                abs((1 - curve_factor) * (y1 - y0) // 2),
+                abs(curve_factor * (x1 - x0) // 2),
+            )
+
+            start = (x0, y0)
+            waypoint1_curve_start = (x0, y0 + curve_dist * (-1 if y1 < y0 else 1))
+            waypoint1 = (x0, (y0 + y1) // 2)
+            waypoint1_curve_end = (
+                x0 + curve_dist * (-1 if x1 < x0 else 1),
+                (y0 + y1) // 2,
+            )
+
+            waypoint2_curve_start = (
+                x1 - curve_dist * (-1 if x1 < x0 else 1),
+                (y0 + y1) // 2,
+            )
+            waypoint2 = (x1, (y0 + y1) // 2)
+            waypoint2_curve_end = (
+                x1,
+                (y0 + y1) // 2 + curve_dist * (-1 if y1 < y0 else 1),
+            )
+            end = (x1, y1)
 
             arrow = self.canvas.create_line(
-                x0, y0, x1, y1, arrow="last", tags=("arrow",)
+                *start,
+                *waypoint1_curve_start,
+                *waypoint1,
+                *waypoint1_curve_end,
+                *waypoint2_curve_start,
+                *waypoint2,
+                waypoint2_curve_end,
+                *end,
+                arrow="last",
+                tags=("arrow",),
+                smooth=True,
             )
             self.canvas.tag_lower(arrow, "window")
 
