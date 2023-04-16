@@ -4,7 +4,6 @@ from typing import List, Optional, Dict, Any
 
 
 class TechnicalIdGen:
-
     counter = count()
 
     @staticmethod
@@ -31,7 +30,6 @@ class NoChildOfItself(Exception):
 
 @dataclass
 class Task:
-
     name: str
     children: List[int] = field(default_factory=list)
     parent: Optional[int] = None
@@ -45,7 +43,7 @@ class Task:
 
     @classmethod
     def deserialize(cls, dct: Dict[str, Any]) -> "Task":
-        TechnicalIdGen.set_minimum(dct["technical_id"]+1)
+        TechnicalIdGen.set_minimum(dct["technical_id"] + 1)
         return cls(**dct)
 
     def children_of(self, other_task: "Task") -> None:

@@ -28,8 +28,18 @@ class WBSCanvas(Canvas):
         self.tree_structure_handler = TreeStructureHandler(self)
         self.focus_set()
         self.bind("<Double-1>", self.create_task)
-        self.bind("s", lambda e: self.save(r"C:\Users\guill\PycharmProjects\project manager\data\temp.json"))
-        self.bind("l", lambda e: self.load(r"C:\Users\guill\PycharmProjects\project manager\data\temp.json"))
+        self.bind(
+            "s",
+            lambda e: self.save(
+                r"C:\Users\guill\PycharmProjects\project manager\data\temp.json"
+            ),
+        )
+        self.bind(
+            "l",
+            lambda e: self.load(
+                r"C:\Users\guill\PycharmProjects\project manager\data\temp.json"
+            ),
+        )
 
     def canvas_pos(self, event: Event) -> Tuple[int, int]:
         return self.canvasx(event.x), self.canvasy(event.y)
@@ -41,7 +51,13 @@ class WBSCanvas(Canvas):
     def organize(self):
         self.delete("arrow")
 
-        tree = self.tree_structure_handler.make_tree(id_list=[task.task_data.technical_id for task in self.tasks if task.task_data.parent is None])
+        tree = self.tree_structure_handler.make_tree(
+            id_list=[
+                task.task_data.technical_id
+                for task in self.tasks
+                if task.task_data.parent is None
+            ]
+        )
         tree = [(self.id_to_graphical_handler(task), x, y) for task, x, y in tree]
         for task, x, y in tree:
             y -= 1
@@ -53,7 +69,9 @@ class WBSCanvas(Canvas):
             task.draw_arrow_to_children()
 
     def id_to_graphical_handler(self, technical_id: int) -> "WBSTaskGraphicalHandler":
-        return next(task for task in self.tasks if task.task_data.technical_id==technical_id)
+        return next(
+            task for task in self.tasks if task.task_data.technical_id == technical_id
+        )
 
     def save(self, path: str):
         save_data = [task.task_data.serialize() for task in self.tasks]
@@ -76,7 +94,6 @@ class WBSCanvas(Canvas):
         self.organize()
 
 
-
 class InvalidLink(Exception):
     pass
 
@@ -87,8 +104,13 @@ class TreeStructureHandler:
     def __init__(self, canvas: WBSCanvas):
         self.canvas = canvas
 
-    def make_tree(self,start_id: int=-1, x_offset: int = 0, y: int = 0, id_list: Optional[List[int]] = None)-> List[Tuple[int, int, int]]:
-
+    def make_tree(
+        self,
+        start_id: int = -1,
+        x_offset: int = 0,
+        y: int = 0,
+        id_list: Optional[List[int]] = None,
+    ) -> List[Tuple[int, int, int]]:
         if id_list is not None:
             children = id_list
         else:
@@ -104,9 +126,7 @@ class TreeStructureHandler:
 
             tree.extend(child_tree)
 
-        children_only_tree = [
-            (task, x, y) for task, x, y in tree if task in children
-        ]
+        children_only_tree = [(task, x, y) for task, x, y in tree if task in children]
         x_of_children = [x for task, x, _ in children_only_tree]
         if len(x_of_children) == 1:
             x_pos_parent = max(x_of_children)
