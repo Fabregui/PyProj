@@ -1,15 +1,17 @@
+import json
 import tkinter
-from statistics import mean
-from tkinter import Canvas, Tk, Event, NW, Text, Label, UNITS, SCROLL, LEFT
+from tkinter import Canvas, Tk, Event, NW, Label, LEFT
 from typing import Tuple, Optional, List, TypeVar
+
+from src.datamodel.tasks import OnlyOneParent, NoChildOfItself, Task
 
 TASK_DEFAULT_WIDTH = 100
 TASK_DEFAULT_WIDTH_STEP = 200
 TASK_DEFAULT_HEIGHT = 50
 TASK_DEFAULT_HEIGHT_STEP = 100
 
-class WBSFrame(tkinter.Frame):
 
+class WBSFrame(tkinter.Frame):
     def __init__(self, master=None):
         super().__init__(master)
 
@@ -23,25 +25,24 @@ class WBSCanvas(Canvas):
         self.configure(background="azure")
 
         self.tasks: List[WBSTaskGraphicalHandler] = []
+        self.tree_structure_handler = TreeStructureHandler(self)
         self.focus_set()
         self.bind("<Double-1>", self.create_task)
+        self.bind("s", lambda e: self.save(r"C:\Users\guill\PycharmProjects\project manager\data\temp.json"))
+        self.bind("l", lambda e: self.load(r"C:\Users\guill\PycharmProjects\project manager\data\temp.json"))
 
     def canvas_pos(self, event: Event) -> Tuple[int, int]:
         return self.canvasx(event.x), self.canvasy(event.y)
 
     def create_task(self, event: Event) -> None:
-        x, y = self.canvas_pos(event)
-        self.tasks.append(WBSTaskGraphicalHandler(self, x, y))
+        self.tasks.append(WBSTaskGraphicalHandler(self, Task("undefined")))
         self.organize()
 
     def organize(self):
-        metatask = TreeStructureHandler()
         self.delete("arrow")
 
-        metatask.children = [task for task in self.tasks if task.parent is None]
-
-        tree = metatask.make_tree()
-        tree = [(task, x, y) for task, x, y in tree if task != metatask]
+        tree = self.tree_structure_handler.make_tree(id_list=[task.task_data.technical_id for task in self.tasks if task.task_data.parent is None])
+        tree = [(self.id_to_graphical_handler(task), x, y) for task, x, y in tree]
         for task, x, y in tree:
             y -= 1
             self.coords(
@@ -51,14 +52,29 @@ class WBSCanvas(Canvas):
         for task, _, _ in tree:
             task.draw_arrow_to_children()
 
+    def id_to_graphical_handler(self, technical_id: int) -> "WBSTaskGraphicalHandler":
+        return next(task for task in self.tasks if task.task_data.technical_id==technical_id)
 
-class GraphicalId:
-    _id = 0
+    def save(self, path: str):
+        save_data = [task.task_data.serialize() for task in self.tasks]
 
-    def __init__(self):
-        super().__init__()
-        self.id = f"graph_{GraphicalId._id}"
-        GraphicalId._id += 1
+        with open(path, "w") as file:
+            json.dump(save_data, file)
+
+    def clear(self):
+        self.delete("window")
+        self.delete("arrow")
+        self.tasks = []
+
+    def load(self, path: str):
+        self.clear()
+        with open(path, "r") as file:
+            save_data = json.load(file)
+        tasks = [Task.deserialize(task_data) for task_data in save_data]
+        graphic_tasks = [WBSTaskGraphicalHandler(self, task) for task in tasks]
+        self.tasks.extend(graphic_tasks)
+        self.organize()
+
 
 
 class InvalidLink(Exception):
@@ -68,25 +84,28 @@ class InvalidLink(Exception):
 class TreeStructureHandler:
     InheritedClasses = TypeVar("InheritedClasses", bound="TreeStructureHandler")
 
-    def __init__(self):
-        self.parent: Optional[TreeStructureHandler.InheritedClasses] = None
-        self.children: List[TreeStructureHandler.InheritedClasses] = []
+    def __init__(self, canvas: WBSCanvas):
+        self.canvas = canvas
 
-    def make_tree(
-        self, x_offset: int = 0, y: int = 0
-    ) -> List[Tuple["InheritedClasses", int, int]]:
-        if not self.children:
-            return [(self, x_offset, y)]
+    def make_tree(self,start_id: int=-1, x_offset: int = 0, y: int = 0, id_list: Optional[List[int]] = None)-> List[Tuple[int, int, int]]:
+
+        if id_list is not None:
+            children = id_list
+        else:
+            children = self.canvas.id_to_graphical_handler(start_id).task_data.children
+
+        if not children:
+            return [(start_id, x_offset, y)]
         tree = []
 
-        for child in self.children:
-            child_tree = child.make_tree(x_offset, y + 1)
+        for child in children:
+            child_tree = self.make_tree(child, x_offset, y + 1)
             x_offset = max(x for _, x, _ in child_tree) + 1
 
             tree.extend(child_tree)
 
         children_only_tree = [
-            (task, x, y) for task, x, y in tree if task in self.children
+            (task, x, y) for task, x, y in tree if task in children
         ]
         x_of_children = [x for task, x, _ in children_only_tree]
         if len(x_of_children) == 1:
@@ -94,42 +113,37 @@ class TreeStructureHandler:
         else:
             x_pos_parent = (max(x_of_children) + min(x_of_children)) / 2
 
-        tree.append((self, x_pos_parent, y))
+        if start_id != -1:
+            tree.append((start_id, x_pos_parent, y))
 
         return tree
 
-    def tree_link(self, other: "TreeStructureHandler") -> None:
-        if other.parent is not None:
-            raise InvalidLink("Can't have multiple parents :/")
-        if self is other:
-            raise InvalidLink("Can't link to yourself, dummy.")
-        other.parent = self
-        self.children.append(other)
 
-
-class WBSTaskGraphicalHandler(GraphicalId, TreeStructureHandler):
-    def __init__(self, canvas: WBSCanvas, x: int, y: int):
-        super().__init__()
+class WBSTaskGraphicalHandler:
+    def __init__(self, canvas: WBSCanvas, task: Task):
         self.canvas = canvas
+        self.task_data = task
+        # self.tree_handler = TreeStructureHandler(self.task_data)
+        self.graphical_id = f"{self.task_data.name}_{self.task_data.technical_id}"
 
         text_widget = Label(
             master=self.canvas,
             bg="grey",
             border=True,
-            text=self.id * 5 + " " + self.id,
+            text=self.graphical_id,
             justify=LEFT,
             anchor=NW,
             wraplength=TASK_DEFAULT_WIDTH,
         )
         self.rect = canvas.create_window(
-            x,
-            y,
+            0,
+            0,
             anchor=NW,
             height=TASK_DEFAULT_HEIGHT,
             width=TASK_DEFAULT_WIDTH,
             tags=(
                 "window",
-                self.id,
+                self.graphical_id,
             ),
             window=text_widget,
         )
@@ -191,7 +205,8 @@ class WBSTaskGraphicalHandler(GraphicalId, TreeStructureHandler):
         x0, y0 = self.canvas.coords(self.rect)
         x0 += TASK_DEFAULT_WIDTH // 2
         y0 += TASK_DEFAULT_HEIGHT
-        for child in self.children:
+        for child in self.task_data.children:
+            child = self.canvas.id_to_graphical_handler(child)
             x1, y1 = self.canvas.coords(child.rect)
             x1 += TASK_DEFAULT_WIDTH // 2
             curve_factor = 0.5
@@ -234,8 +249,14 @@ class WBSTaskGraphicalHandler(GraphicalId, TreeStructureHandler):
             )
             self.canvas.tag_lower(arrow, "window")
 
+    def tree_link(self, other: "WBSTaskGraphicalHandler") -> None:
+        try:
+            self.task_data.parent_of(other.task_data)
+        except (NoChildOfItself, OnlyOneParent):
+            raise InvalidLink
+
     def __repr__(self):
-        return self.id
+        return self.graphical_id
 
 
 if __name__ == "__main__":
