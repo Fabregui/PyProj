@@ -10,24 +10,22 @@ import tkinter as tk
 import pyproj
 from src.work_breakdown_structure.graph import WBSFrame
 
-_debug = True # False to eliminate debug printing from callback functions.
+_debug = True  # False to eliminate debug printing from callback functions.
+
 
 def main(*args):
-    '''Main entry point for the application.'''
+    """Main entry point for the application."""
     global root
     root = tk.Tk()
-    root.protocol( 'WM_DELETE_WINDOW' , root.destroy)
+    root.protocol("WM_DELETE_WINDOW", root.destroy)
     # Creates a toplevel widget.
     global _top1, _w1
     _top1 = root
     _w1 = pyproj.Toplevel1(_top1)
     root.mainloop()
 
+
 Custom = WBSFrame  # To be updated by user with name of custom widget.
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pyproj.start_up()
-
-
-
-
