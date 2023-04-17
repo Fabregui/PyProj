@@ -8,7 +8,7 @@
 import tkinter as tk
 
 import pyproj
-import src.work_breakdown_structure.graph
+import src.graphical_interface.work_breakdown_structure.graph
 
 _debug = True  # False to eliminate debug printing from callback functions.
 
@@ -26,7 +26,7 @@ def main(*args):
 
 
 Custom = (
-    src.work_breakdown_structure.graph.WBSFrame
+    src.graphical_interface.work_breakdown_structure.graph.WBSFrame
 )  # To be updated by user with name of custom widget.
 
 if __name__ == "__main__":

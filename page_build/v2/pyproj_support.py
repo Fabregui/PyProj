@@ -8,7 +8,7 @@
 import tkinter as tk
 
 import pyproj
-from src.work_breakdown_structure.graph import WBSFrame
+from src.graphical_interface.work_breakdown_structure.graph import WBSFrame
 
 _debug = True  # False to eliminate debug printing from callback functions.
 
