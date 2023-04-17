@@ -5,10 +5,7 @@
 #  in conjunction with Tcl version 8.6
 #    Apr 16, 2023 08:34:08 PM CEST  platform: Windows NT
 
-import sys
 import tkinter as tk
-import tkinter.ttk as ttk
-from tkinter.constants import *
 
 import pyproj
 from src.work_breakdown_structure.graph import WBSFrame
