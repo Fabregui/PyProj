@@ -77,7 +77,7 @@ class WBSCanvas(Canvas):
         save_data = [task.task_data.serialize() for task in self.tasks]
 
         with open(path, "w") as file:
-            json.dump(save_data, file)
+            json.dump(save_data, file, indent=4)
 
     def clear(self):
         self.delete("window")
@@ -87,7 +87,7 @@ class WBSCanvas(Canvas):
     def load(self, path: str):
         self.clear()
         with open(path, "r") as file:
-            save_data = json.load(file)
+            save_data = json.load(file, indent=4)
         tasks = [Task.deserialize(task_data) for task_data in save_data]
         graphic_tasks = [WBSTaskGraphicalHandler(self, task) for task in tasks]
         self.tasks.extend(graphic_tasks)
