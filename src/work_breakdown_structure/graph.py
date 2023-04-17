@@ -1,14 +1,18 @@
 import json
+import os.path
 import tkinter
 from tkinter import Canvas, Tk, Event, NW, Label, LEFT
 from typing import Tuple, Optional, List, TypeVar
 
+from src import SRC_ROOT_FOLDER
 from src.datamodel.tasks import OnlyOneParent, NoChildOfItself, Task
 
 TASK_DEFAULT_WIDTH = 100
 TASK_DEFAULT_WIDTH_STEP = 200
 TASK_DEFAULT_HEIGHT = 50
 TASK_DEFAULT_HEIGHT_STEP = 100
+
+DEFAULT_FILE_PATH = os.path.join(SRC_ROOT_FOLDER, "temp.json")
 
 
 class WBSFrame(tkinter.Frame):
@@ -30,15 +34,11 @@ class WBSCanvas(Canvas):
         self.bind("<Double-1>", self.create_task)
         self.bind(
             "s",
-            lambda e: self.save(
-                r"C:\Users\guill\PycharmProjects\project manager\data\temp.json"
-            ),
+            lambda e: self.save(DEFAULT_FILE_PATH),
         )
         self.bind(
             "l",
-            lambda e: self.load(
-                r"C:\Users\guill\PycharmProjects\project manager\data\temp.json"
-            ),
+            lambda e: self.load(DEFAULT_FILE_PATH),
         )
 
     def canvas_pos(self, event: Event) -> Tuple[int, int]:
