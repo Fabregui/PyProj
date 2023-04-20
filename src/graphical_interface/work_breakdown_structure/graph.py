@@ -5,7 +5,7 @@ from tkinter import Canvas, Tk, Event, NW, Label, LEFT, ttk, BOTTOM, X, RIGHT, Y
 from typing import Tuple, Optional, List, TypeVar
 
 from src import SRC_ROOT_FOLDER
-from src.datamodel.tasks import OnlyOneParent, NoChildOfItself, Task
+from src.datamodel.object_permanence.tasks import OnlyOneParent, NoChildOfItself, Task
 
 TASK_DEFAULT_WIDTH = 100
 TASK_DEFAULT_WIDTH_STEP = 200
