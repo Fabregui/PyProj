@@ -1,7 +1,7 @@
 import json
 import os.path
 import tkinter
-from tkinter import Canvas, Tk, Event, NW, Label, LEFT
+from tkinter import Canvas, Tk, Event, NW, Label, LEFT, ttk, BOTTOM, X, RIGHT, Y
 from typing import Tuple, Optional, List, TypeVar
 
 from src import SRC_ROOT_FOLDER
@@ -20,7 +20,14 @@ class WBSFrame(tkinter.Frame):
         super().__init__(master)
 
         canvas = WBSCanvas(self)
-        canvas.pack(fill="both", expand=True)
+
+        self.vsb = ttk.Scrollbar(master, orient="vertical", command=canvas.yview)
+        self.vsb.pack(side=RIGHT, fill=Y)
+        self.hsb = ttk.Scrollbar(master, orient="horizontal", command=canvas.xview)
+        self.hsb.pack(side=BOTTOM, fill=X)
+
+        canvas.configure(xscrollcommand=self.hsb.set, yscrollcommand=self.vsb.set)
+        canvas.pack(side=LEFT, fill="both", expand=True)
 
 
 class WBSCanvas(Canvas):
@@ -67,6 +74,8 @@ class WBSCanvas(Canvas):
 
         for task, _, _ in tree:
             task.draw_arrow_to_children()
+
+        self.configure(scrollregion=self.bbox("all"))
 
     def id_to_graphical_handler(self, technical_id: int) -> "WBSTaskGraphicalHandler":
         return next(
