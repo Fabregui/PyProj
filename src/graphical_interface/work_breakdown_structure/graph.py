@@ -40,6 +40,7 @@ class WBSCanvas(Canvas):
         self.configure(background="azure")
 
         self.tasks: List[WBSTaskGraphicalHandler] = []
+        self.arrows: List[ArrowHandler] = []
         self.tree_structure_handler = TreeStructureHandler(self)
         self.bind("<Double-1>", self.create_task)
         self.bind("<Map>", self.load_when_visible)
@@ -52,6 +53,21 @@ class WBSCanvas(Canvas):
         new_task = Task("undefined")
         ApplicationData.add_task(new_task)
         self.tasks.append(WBSTaskGraphicalHandler(self, new_task))
+        self.organize()
+
+    def create_relation(
+        self,
+        first_task: "WBSTaskGraphicalHandler",
+        other_task: "WBSTaskGraphicalHandler",
+    ):
+        arrow = first_task.real_arrow
+        try:
+            first_task.task_data.parent_of(other_task.task_data)
+        except (NoChildOfItself, OnlyOneParent):
+            raise InvalidLink
+
+        arrow.end = other_task
+        self.arrows.append(arrow)
         self.organize()
 
     def organize(self):
@@ -71,8 +87,8 @@ class WBSCanvas(Canvas):
                 task.rect, x * TASK_DEFAULT_WIDTH_STEP, y * TASK_DEFAULT_HEIGHT_STEP
             )
 
-        for task, _, _ in tree:
-            task.draw_arrow_to_children()
+        for arrow in self.arrows:
+            arrow.draw_between_start_and_end()
 
         self.configure(scrollregion=self.bbox("all"))
 
@@ -101,13 +117,15 @@ class WBSCanvas(Canvas):
         self.tasks.extend(graphic_tasks)
         self.organize()
 
-    def load_when_visible(self, event:Event) -> None:
+    def load_when_visible(self, event: Event) -> None:
         self.focus_set()
         self.reload()
 
     def reload(self) -> None:
         self.clear()
-        self.tasks = [WBSTaskGraphicalHandler(self, task) for task in ApplicationData.tasks]
+        self.tasks = [
+            WBSTaskGraphicalHandler(self, task) for task in ApplicationData.tasks
+        ]
         self.organize()
 
     def clear_when_no_longer_visible(self, event: Event) -> None:
@@ -119,7 +137,6 @@ class InvalidLink(Exception):
 
 
 class TreeStructureHandler:
-
     def __init__(self, canvas: WBSCanvas):
         self.canvas = canvas
 
@@ -188,7 +205,7 @@ class WBSTaskGraphicalHandler:
             window=text_widget,
         )
 
-        self.arrow: Optional[int] = None
+        self.real_arrow: Optional[ArrowHandler] = None
 
         text_widget.bind("<Button1-Motion>", self.arrow_drag)
         text_widget.bind("<Button1-ButtonRelease>", self.link_rect)
@@ -200,37 +217,64 @@ class WBSTaskGraphicalHandler:
     def arrow_drag(self, event: Event):
         xm, ym = self.get_mouse_position_from_rect(event)
 
-        if self.arrow is None:
-            self.arrow = self.canvas.create_line(
-                xm, ym, xm, ym, arrow="last", tags=("arrow",)
-            )
+        if self.real_arrow is None:
+            self.real_arrow = ArrowHandler(self.canvas, xm, ym, self)
         else:
-            x0, y0, _, _ = self.canvas.coords(self.arrow)
-            self.canvas.coords(self.arrow, x0, y0, xm, ym)
+            self.real_arrow.update_end(xm, ym)
 
     def link_rect(self, event: Event):
-        if self.arrow is None:
+        if self.real_arrow is None:
             return
-        # remember this line else we could not find the rectangle we want to link to.
-        self.canvas.tag_lower(self.arrow, "window")
 
         xm, ym = self.get_mouse_position_from_rect(event)
-
-        other_rect = self.canvas.find_closest(xm, ym, start=self.arrow)[0]
+        other_rect = self.canvas.find_closest(
+            xm, ym, start=self.real_arrow.graphical_arrow
+        )[0]
         try:
             other_task = next(
                 task for task in self.canvas.tasks if task.rect == other_rect
             )
-            self.tree_link(other_task)
-        except (StopIteration, InvalidLink) as e:
+            self.canvas.create_relation(self, other_task)
+        except (StopIteration, InvalidLink):
             # no rectangle to link to or linking is invalid.
-            self.canvas.delete(self.arrow)
-        else:
-            self.canvas.organize()
+            self.real_arrow.delete()
         finally:
-            self.arrow = None
+            self.real_arrow = None
 
-    def draw_arrow_to_children(self):
+    def __repr__(self):
+        return self.graphical_id
+
+
+class ArrowHandler:
+    def __init__(
+        self,
+        canvas: WBSCanvas,
+        start_x: int,
+        start_y: int,
+        start_task: WBSTaskGraphicalHandler,
+    ):
+        self.canvas = canvas
+
+        self.x0 = start_x
+        self.y0 = start_y
+
+        self.graphical_arrow = self.canvas.create_line(
+            start_x, start_y, start_x, start_y, arrow="last", tags=("arrow",)
+        )
+
+        # remember this line else we could not find the rectangle we want to link to.
+        self.canvas.tag_lower(self.graphical_arrow, "window")
+
+        self.start = start_task
+        self.end: Optional[WBSTaskGraphicalHandler] = None
+
+    def update_end(self, xm: int, ym: int) -> None:
+        self.canvas.coords(self.graphical_arrow, self.x0, self.y0, xm, ym)
+
+    def delete(self):
+        self.canvas.delete(self.graphical_arrow)
+
+    def draw_between_start_and_end(self):
         """
         This function takes charge of drawing straight lines with curves from top to bottom.
         The lines look like :
@@ -242,61 +286,53 @@ class WBSTaskGraphicalHandler:
 
         with bends at the two intersection.
         """
-        x0, y0 = self.canvas.coords(self.rect)
+        x0, y0 = self.canvas.coords(self.start.rect)
         x0 += TASK_DEFAULT_WIDTH // 2
         y0 += TASK_DEFAULT_HEIGHT
-        for child in self.task_data.children:
-            child = self.canvas.id_to_graphical_handler(child)
-            x1, y1 = self.canvas.coords(child.rect)
-            x1 += TASK_DEFAULT_WIDTH // 2
-            curve_factor = 0.5
-            curve_dist = min(
-                abs((1 - curve_factor) * (y1 - y0) // 2),
-                abs(curve_factor * (x1 - x0) // 2),
-            )
 
-            start = (x0, y0)
-            waypoint1_curve_start = (x0, y0 + curve_dist * (-1 if y1 < y0 else 1))
-            waypoint1 = (x0, (y0 + y1) // 2)
-            waypoint1_curve_end = (
-                x0 + curve_dist * (-1 if x1 < x0 else 1),
-                (y0 + y1) // 2,
-            )
+        x1, y1 = self.canvas.coords(self.end.rect)
 
-            waypoint2_curve_start = (
-                x1 - curve_dist * (-1 if x1 < x0 else 1),
-                (y0 + y1) // 2,
-            )
-            waypoint2 = (x1, (y0 + y1) // 2)
-            waypoint2_curve_end = (
-                x1,
-                (y0 + y1) // 2 + curve_dist * (-1 if y1 < y0 else 1),
-            )
-            end = (x1, y1)
+        x1 += TASK_DEFAULT_WIDTH // 2
+        curve_factor = 0.5
+        curve_dist = min(
+            abs((1 - curve_factor) * (y1 - y0) // 2),
+            abs(curve_factor * (x1 - x0) // 2),
+        )
 
-            arrow = self.canvas.create_line(
-                *start,
-                *waypoint1_curve_start,
-                *waypoint1,
-                *waypoint1_curve_end,
-                *waypoint2_curve_start,
-                *waypoint2,
-                waypoint2_curve_end,
-                *end,
-                arrow="last",
-                tags=("arrow",),
-                smooth=True,
-            )
-            self.canvas.tag_lower(arrow, "window")
+        start = (x0, y0)
+        waypoint1_curve_start = (x0, y0 + curve_dist * (-1 if y1 < y0 else 1))
+        waypoint1 = (x0, (y0 + y1) // 2)
+        waypoint1_curve_end = (
+            x0 + curve_dist * (-1 if x1 < x0 else 1),
+            (y0 + y1) // 2,
+        )
 
-    def tree_link(self, other: "WBSTaskGraphicalHandler") -> None:
-        try:
-            self.task_data.parent_of(other.task_data)
-        except (NoChildOfItself, OnlyOneParent):
-            raise InvalidLink
+        waypoint2_curve_start = (
+            x1 - curve_dist * (-1 if x1 < x0 else 1),
+            (y0 + y1) // 2,
+        )
+        waypoint2 = (x1, (y0 + y1) // 2)
+        waypoint2_curve_end = (
+            x1,
+            (y0 + y1) // 2 + curve_dist * (-1 if y1 < y0 else 1),
+        )
+        end = (x1, y1)
 
-    def __repr__(self):
-        return self.graphical_id
+        self.canvas.delete(self.graphical_arrow)
+        self.graphical_arrow = self.canvas.create_line(
+            *start,
+            *waypoint1_curve_start,
+            *waypoint1,
+            *waypoint1_curve_end,
+            *waypoint2_curve_start,
+            *waypoint2,
+            waypoint2_curve_end,
+            *end,
+            arrow="last",
+            tags=("arrow",),
+            smooth=True,
+        )
+        self.canvas.tag_lower(self.graphical_arrow, "window")
 
 
 if __name__ == "__main__":
