@@ -6,7 +6,7 @@ from typing import Tuple, Optional, List
 from src import SRC_ROOT_FOLDER
 from src.datamodel.graphics_to_data_interface import ApplicationData
 from src.datamodel.object_permanence.tasks import OnlyOneParent, NoChildOfItself, Task
-from src.graphical_interface.tasks import create_task
+from src.graphical_interface.tasks import create_new_task
 
 TASK_DEFAULT_WIDTH = 100
 TASK_DEFAULT_WIDTH_STEP = 200
@@ -56,7 +56,10 @@ class WBSCanvas(Canvas):
         self.config(cursor="")
 
     def create_task(self, event: Event) -> None:
-        new_task = create_task(self)
+        new_task = create_new_task(self)
+        if new_task is None:
+            return
+
         ApplicationData.add_task(new_task)
         self.tasks.append(WBSTaskGraphicalHandler(self, new_task))
         self.organize()
