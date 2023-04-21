@@ -2,7 +2,7 @@ import json
 import os.path
 import tkinter
 from tkinter import Canvas, Tk, Event, NW, Label, LEFT, ttk, BOTTOM, X, RIGHT, Y
-from typing import Tuple, Optional, List, TypeVar
+from typing import Tuple, Optional, List
 
 from src import SRC_ROOT_FOLDER
 from src.datamodel.graphics_to_data_interface import ApplicationData
@@ -119,7 +119,6 @@ class InvalidLink(Exception):
 
 
 class TreeStructureHandler:
-    InheritedClasses = TypeVar("InheritedClasses", bound="TreeStructureHandler")
 
     def __init__(self, canvas: WBSCanvas):
         self.canvas = canvas
