@@ -21,9 +21,9 @@ class WBSFrame(tkinter.Frame):
 
         canvas = WBSCanvas(self)
 
-        self.vsb = ttk.Scrollbar(master, orient="vertical", command=canvas.yview)
+        self.vsb = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
         self.vsb.pack(side=RIGHT, fill=Y)
-        self.hsb = ttk.Scrollbar(master, orient="horizontal", command=canvas.xview)
+        self.hsb = ttk.Scrollbar(self, orient="horizontal", command=self.canvas.xview)
         self.hsb.pack(side=BOTTOM, fill=X)
 
         canvas.configure(xscrollcommand=self.hsb.set, yscrollcommand=self.vsb.set)
@@ -126,6 +126,8 @@ class TreeStructureHandler:
             children = self.canvas.id_to_graphical_handler(start_id).task_data.children
 
         if not children:
+            if start_id == -1:
+                return []
             return [(start_id, x_offset, y)]
         tree = []
 
@@ -152,7 +154,6 @@ class WBSTaskGraphicalHandler:
     def __init__(self, canvas: WBSCanvas, task: Task):
         self.canvas = canvas
         self.task_data = task
-        # self.tree_handler = TreeStructureHandler(self.task_data)
         self.graphical_id = f"{self.task_data.name}_{self.task_data.technical_id}"
 
         text_widget = Label(
