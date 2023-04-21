@@ -1,4 +1,3 @@
-import json
 import os.path
 import tkinter
 from tkinter import Canvas, Tk, Event, NW, Label, LEFT, ttk, BOTTOM, X, RIGHT, Y
@@ -7,6 +6,7 @@ from typing import Tuple, Optional, List
 from src import SRC_ROOT_FOLDER
 from src.datamodel.graphics_to_data_interface import ApplicationData
 from src.datamodel.object_permanence.tasks import OnlyOneParent, NoChildOfItself, Task
+from src.graphical_interface.tasks import create_task
 
 TASK_DEFAULT_WIDTH = 100
 TASK_DEFAULT_WIDTH_STEP = 200
@@ -56,7 +56,7 @@ class WBSCanvas(Canvas):
         self.config(cursor="")
 
     def create_task(self, event: Event) -> None:
-        new_task = Task("undefined")
+        new_task = create_task(self)
         ApplicationData.add_task(new_task)
         self.tasks.append(WBSTaskGraphicalHandler(self, new_task))
         self.organize()
