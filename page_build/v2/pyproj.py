@@ -19,109 +19,153 @@ _location = os.path.dirname(_script)
 
 import pyproj_support
 
-_bgcolor = '#d9d9d9'  # X11 color: 'gray85'
-_fgcolor = '#000000'  # X11 color: 'black'
-_compcolor = 'gray40' # X11 color: #666666
-_ana1color = '#c3c3c3' # Closest X11 color: 'gray76'
-_ana2color = 'beige' # X11 color: #f5f5dc
-_tabfg1 = 'black' 
-_tabfg2 = 'black' 
-_tabbg1 = 'grey75' 
-_tabbg2 = 'grey89' 
-_bgmode = 'light' 
+_bgcolor = "#d9d9d9"  # X11 color: 'gray85'
+_fgcolor = "#000000"  # X11 color: 'black'
+_compcolor = "gray40"  # X11 color: #666666
+_ana1color = "#c3c3c3"  # Closest X11 color: 'gray76'
+_ana2color = "beige"  # X11 color: #f5f5dc
+_tabfg1 = "black"
+_tabfg2 = "black"
+_tabbg1 = "grey75"
+_tabbg2 = "grey89"
+_bgmode = "light"
 
 _style_code_ran = 0
+
+
 def _style_code():
     global _style_code_ran
     if _style_code_ran:
-       return
+        return
     style = ttk.Style()
     if sys.platform == "win32":
-       style.theme_use('winnative')
-    style.configure('.',background=_bgcolor)
-    style.configure('.',foreground=_fgcolor)
-    style.configure('.',font='TkDefaultFont')
-    style.map('.',background =
-       [('selected', _compcolor), ('active',_ana2color)])
-    if _bgmode == 'dark':
-       style.map('.',foreground =
-         [('selected', 'white'), ('active','white')])
+        style.theme_use("winnative")
+    style.configure(".", background=_bgcolor)
+    style.configure(".", foreground=_fgcolor)
+    style.configure(".", font="TkDefaultFont")
+    style.map(".", background=[("selected", _compcolor), ("active", _ana2color)])
+    if _bgmode == "dark":
+        style.map(".", foreground=[("selected", "white"), ("active", "white")])
     else:
-       style.map('.',foreground =
-         [('selected', 'black'), ('active','black')])
+        style.map(".", foreground=[("selected", "black"), ("active", "black")])
 
     global _images
     _images = (
-         tk.PhotoImage("img_close", data='''R0lGODlhDAAMAIQUADIyMjc3Nzk5OT09PT
+        tk.PhotoImage(
+            "img_close",
+            data="""R0lGODlhDAAMAIQUADIyMjc3Nzk5OT09PT
                  8/P0JCQkVFRU1NTU5OTlFRUVZWVmBgYGF hYWlpaXt7e6CgoLm5ucLCwszMzNbW
                  1v//////////////////////////////////// ///////////yH5BAEKAB8ALA
                  AAAAAMAAwAAAUt4CeOZGmaA5mSyQCIwhCUSwEIxHHW+ fkxBgPiBDwshCWHQfc5
-                  KkoNUtRHpYYAADs= '''),
-         tk.PhotoImage("img_close_white", data='''R0lGODlhDAAMAPQfAM3NzcjI
+                  KkoNUtRHpYYAADs= """,
+        ),
+        tk.PhotoImage(
+            "img_close_white",
+            data="""R0lGODlhDAAMAPQfAM3NzcjI
                 yMbGxsLCwsDAwL29vbq6urKysrGxsa6urqmpqZ+fn56enpaWloSEhF9fX0ZGR
                 j09PTMzMykpKQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///yH
                 5BAEKAB8ALAAAAAAMAAwAAAUt4CeOZGmaA5mSyQCIwhCUSwEIxHHW+fkxBgPi
-                BDwshCWHQfc5KkoNUtRHpYYAADs='''),
-         tk.PhotoImage("img_closeactive", data='''R0lGODlhDAAMAIQcALwuEtIzFL46
+                BDwshCWHQfc5KkoNUtRHpYYAADs=""",
+        ),
+        tk.PhotoImage(
+            "img_closeactive",
+            data="""R0lGODlhDAAMAIQcALwuEtIzFL46
                  INY0Fdk2FsQ8IdhAI9pAIttCJNlKLtpLL9pMMMNTP cVTPdpZQOBbQd60rN+1rf
                  Czp+zLxPbMxPLX0vHY0/fY0/rm4vvx8Pvy8fzy8P//////// ///////yH5BAEK
                  AB8ALAAAAAAMAAwAAAVHYLQQZEkukWKuxEgg1EPCcilx24NcHGYWFhx P0zANBE
-                 GOhhFYGSocTsax2imDOdNtiez9JszjpEg4EAaA5jlNUEASLFICEgIAOw== '''),
-         tk.PhotoImage("img_closepressed", data='''R0lGODlhDAAMAIQeAJ8nD64qELE
+                 GOhhFYGSocTsax2imDOdNtiez9JszjpEg4EAaA5jlNUEASLFICEgIAOw== """,
+        ),
+        tk.PhotoImage(
+            "img_closepressed",
+            data="""R0lGODlhDAAMAIQeAJ8nD64qELE
                  rELMsEqIyG6cyG7U1HLY2HrY3HrhBKrlCK6pGM7lD LKtHM7pKNL5MNtiViNaon
                   +GqoNSyq9WzrNyyqtuzq+O0que/t+bIwubJw+vJw+vTz+zT z////////yH5BAE
                  KAB8ALAAAAAAMAAwAAAVJIMUMZEkylGKuwzgc0kPCcgl123NcHWYW Fs6Gp2mYB
-                 IRgR7MIrAwVDifjWO2WwZzpxkxyfKVCpImMGAeIgQDgVLMHikmCRUpMQgA7 ''')
-        )
+                 IRgR7MIrAwVDifjWO2WwZzpxkxyfKVCpImMGAeIgQDgVLMHikmCRUpMQgA7 """,
+        ),
+    )
     if _bgmode == "dark":
-        style.element_create("close", "image", "img_close_white",
-           ('active', 'pressed',  'img_closepressed'),
-           ('active', 'alternate', 'img_closeactive'), border=8, sticky='')
+        style.element_create(
+            "close",
+            "image",
+            "img_close_white",
+            ("active", "pressed", "img_closepressed"),
+            ("active", "alternate", "img_closeactive"),
+            border=8,
+            sticky="",
+        )
     else:
-        style.element_create("close", "image", "img_close",
-           ('active', 'pressed',  'img_closepressed'),
-           ('active', 'alternate', 'img_closeactive'), border=8, sticky='')
+        style.element_create(
+            "close",
+            "image",
+            "img_close",
+            ("active", "pressed", "img_closepressed"),
+            ("active", "alternate", "img_closeactive"),
+            border=8,
+            sticky="",
+        )
 
-    style.layout("ClosetabNotebook", [("ClosetabNotebook.client",
-                                 {"sticky": "nswe"})])
-    style.layout("ClosetabNotebook.Tab", [
-        ("ClosetabNotebook.tab",
-          { "sticky": "nswe",
-            "children": [
-                ("ClosetabNotebook.padding", {
-                    "side": "top",
+    style.layout("ClosetabNotebook", [("ClosetabNotebook.client", {"sticky": "nswe"})])
+    style.layout(
+        "ClosetabNotebook.Tab",
+        [
+            (
+                "ClosetabNotebook.tab",
+                {
                     "sticky": "nswe",
                     "children": [
-                        ("ClosetabNotebook.focus", {
-                            "side": "top",
-                            "sticky": "nswe",
-                            "children": [
-                                ("ClosetabNotebook.label", {"side":
-                                  "left", "sticky": ''}),
-                                ("ClosetabNotebook.close", {"side":
-                                    "left", "sticky": ''}),]})]})]})])
+                        (
+                            "ClosetabNotebook.padding",
+                            {
+                                "side": "top",
+                                "sticky": "nswe",
+                                "children": [
+                                    (
+                                        "ClosetabNotebook.focus",
+                                        {
+                                            "side": "top",
+                                            "sticky": "nswe",
+                                            "children": [
+                                                (
+                                                    "ClosetabNotebook.label",
+                                                    {"side": "left", "sticky": ""},
+                                                ),
+                                                (
+                                                    "ClosetabNotebook.close",
+                                                    {"side": "left", "sticky": ""},
+                                                ),
+                                            ],
+                                        },
+                                    )
+                                ],
+                            },
+                        )
+                    ],
+                },
+            )
+        ],
+    )
 
-    style.map('ClosetabNotebook.Tab', background =
-        [('selected', _bgcolor), ('active', _tabbg1),
-        ('!active', _tabbg2)], foreground =
-        [('selected', _fgcolor), ('active', _tabfg1), ('!active', _tabfg2)])
-    style.configure('Vertical.TScrollbar',  background=_bgcolor,
-        arrowcolor= _fgcolor)
-    style.configure('Horizontal.TScrollbar',  background=_bgcolor,
-        arrowcolor= _fgcolor)
-    style.configure('Treeview',  font="TkDefaultFont")
+    style.map(
+        "ClosetabNotebook.Tab",
+        background=[("selected", _bgcolor), ("active", _tabbg1), ("!active", _tabbg2)],
+        foreground=[("selected", _fgcolor), ("active", _tabfg1), ("!active", _tabfg2)],
+    )
+    style.configure("Vertical.TScrollbar", background=_bgcolor, arrowcolor=_fgcolor)
+    style.configure("Horizontal.TScrollbar", background=_bgcolor, arrowcolor=_fgcolor)
+    style.configure("Treeview", font="TkDefaultFont")
     _style_code_ran = 1
 
 
 class Toplevel1:
     def __init__(self, top=None):
-        '''This class configures and populates the toplevel window.
-           top is the toplevel containing window.'''
+        """This class configures and populates the toplevel window.
+        top is the toplevel containing window."""
 
         top.geometry("888x641+577+174")
         top.minsize(120, 1)
         top.maxsize(3844, 1061)
-        top.resizable(1,  1)
+        top.resizable(1, 1)
         top.title("Toplevel 0")
         top.configure(background="#d9d9d9")
         top.configure(highlightbackground="#d9d9d9")
@@ -130,111 +174,132 @@ class Toplevel1:
         self.top = top
 
         _style_code()
-        PNOTEBOOK="ClosetabNotebook"
+        PNOTEBOOK = "ClosetabNotebook"
         self.PNotebook1 = ttk.Notebook(self.top)
-        self.PNotebook1.place(relx=0.0, rely=-0.002, relheight=1.002
-                , relwidth=1.0)
+        self.PNotebook1.place(relx=0.0, rely=-0.002, relheight=1.002, relwidth=1.0)
         self.PNotebook1.configure(style=PNOTEBOOK)
         self.PNotebook1_t1 = tk.Frame(self.PNotebook1)
         self.PNotebook1.add(self.PNotebook1_t1, padding=3)
-        self.PNotebook1.tab(0, text='''Projet''', compound="left"
-                ,underline='''-1''', )
+        self.PNotebook1.tab(
+            0,
+            text="""Projet""",
+            compound="left",
+            underline="""-1""",
+        )
         self.PNotebook1_t1.configure(background="#d9d9d9")
         self.PNotebook1_t1.configure(highlightbackground="#d9d9d9")
         self.PNotebook1_t1.configure(highlightcolor="black")
-        PNOTEBOOK="ClosetabNotebook"
+        PNOTEBOOK = "ClosetabNotebook"
         self.PNotebook3 = ttk.Notebook(self.PNotebook1_t1)
         self.PNotebook3.place(relx=0.0, rely=0.0, relheight=1.0, relwidth=1.0)
         self.PNotebook3.configure(style=PNOTEBOOK)
         self.PNotebook3_t1 = tk.Frame(self.PNotebook3)
         self.PNotebook3.add(self.PNotebook3_t1, padding=3)
-        self.PNotebook3.tab(0, text='''Tasks''', compound="left"
-                ,underline='''-1''', )
+        self.PNotebook3.tab(
+            0,
+            text="""Tasks""",
+            compound="left",
+            underline="""-1""",
+        )
         self.PNotebook3_t1.configure(background="#d9d9d9")
         self.PNotebook3_t1.configure(highlightbackground="#d9d9d9")
         self.PNotebook3_t1.configure(highlightcolor="black")
         self.PNotebook3_t2 = tk.Frame(self.PNotebook3)
         self.PNotebook3.add(self.PNotebook3_t2, padding=3)
-        self.PNotebook3.tab(1, text='''Ressources''', compound="left"
-                ,underline='''-1''', )
+        self.PNotebook3.tab(
+            1,
+            text="""Ressources""",
+            compound="left",
+            underline="""-1""",
+        )
         self.PNotebook3_t2.configure(background="#d9d9d9")
         self.PNotebook3_t2.configure(highlightbackground="#d9d9d9")
         self.PNotebook3_t2.configure(highlightcolor="black")
-        PNOTEBOOK="ClosetabNotebook"
+        PNOTEBOOK = "ClosetabNotebook"
         self.PNotebook2_1 = ttk.Notebook(self.PNotebook3_t1)
         self.PNotebook2_1.place(relx=0.0, rely=0.0, relheight=1.0, relwidth=1.0)
         self.PNotebook2_1.configure(style=PNOTEBOOK)
         self.PNotebook2_t1_1 = tk.Frame(self.PNotebook2_1)
         self.PNotebook2_1.add(self.PNotebook2_t1_1, padding=3)
-        self.PNotebook2_1.tab(0, text='''Gantt''', compound="left"
-                ,underline='''-1''', )
+        self.PNotebook2_1.tab(
+            0,
+            text="""Gantt""",
+            compound="left",
+            underline="""-1""",
+        )
         self.PNotebook2_t1_1.configure(background="#d9d9d9")
         self.PNotebook2_t1_1.configure(highlightbackground="#d9d9d9")
         self.PNotebook2_t1_1.configure(highlightcolor="black")
         self.PNotebook2_t2_1 = tk.Frame(self.PNotebook2_1)
         self.PNotebook2_1.add(self.PNotebook2_t2_1, padding=3)
-        self.PNotebook2_1.tab(1, text='''WBS''', compound="left"
-                ,underline='''-1''', )
+        self.PNotebook2_1.tab(
+            1,
+            text="""WBS""",
+            compound="left",
+            underline="""-1""",
+        )
         self.PNotebook2_t2_1.configure(background="#d9d9d9")
         self.PNotebook2_t2_1.configure(highlightbackground="#d9d9d9")
         self.PNotebook2_t2_1.configure(highlightcolor="black")
-        self.TPanedwindow1 = ttk.Panedwindow(self.PNotebook2_t1_1
-                , orient="horizontal")
+        self.TPanedwindow1 = ttk.Panedwindow(self.PNotebook2_t1_1, orient="horizontal")
         self.TPanedwindow1.place(relx=0.0, rely=0.0, relheight=1.0, relwidth=1.0)
 
-        self.TPanedwindow1_p1 = ttk.Labelframe(self.TPanedwindow1, width=250
-                , text='Pane 1')
+        self.TPanedwindow1_p1 = ttk.Labelframe(
+            self.TPanedwindow1, width=250, text="Pane 1"
+        )
         self.TPanedwindow1.add(self.TPanedwindow1_p1, weight=0)
-        self.TPanedwindow1_p1.configure(text='''Pane 1''')
-        self.TPanedwindow1_p2 = ttk.Labelframe(self.TPanedwindow1, text='Pane 2')
+        self.TPanedwindow1_p1.configure(text="""Pane 1""")
+        self.TPanedwindow1_p2 = ttk.Labelframe(self.TPanedwindow1, text="Pane 2")
 
         self.TPanedwindow1.add(self.TPanedwindow1_p2, weight=0)
-        self.TPanedwindow1_p2.configure(text='''Pane 2''')
-        self.__funcid0 = self.TPanedwindow1.bind('<Map>', self.__adjust_sash0)
+        self.TPanedwindow1_p2.configure(text="""Pane 2""")
+        self.__funcid0 = self.TPanedwindow1.bind("<Map>", self.__adjust_sash0)
         self.Scrolledtreeview1 = ScrolledTreeView(self.TPanedwindow1_p1)
-        self.Scrolledtreeview1.place(relx=0.0, rely=0.0, relheight=1.0
-                , relwidth=1.0, bordermode='ignore')
+        self.Scrolledtreeview1.place(
+            relx=0.0, rely=0.0, relheight=1.0, relwidth=1.0, bordermode="ignore"
+        )
         self.Scrolledtreeview1.configure(columns="Col1 Col2 Col3 Col4 Col5")
         # build_treeview_support starting.
-        self.Scrolledtreeview1.heading("#0",text="Tree")
-        self.Scrolledtreeview1.heading("#0",anchor="center")
-        self.Scrolledtreeview1.column("#0",width="115")
-        self.Scrolledtreeview1.column("#0",minwidth="20")
-        self.Scrolledtreeview1.column("#0",stretch="1")
-        self.Scrolledtreeview1.column("#0",anchor="w")
-        self.Scrolledtreeview1.heading("Col1",text="Col1")
-        self.Scrolledtreeview1.heading("Col1",anchor="center")
-        self.Scrolledtreeview1.column("Col1",width="116")
-        self.Scrolledtreeview1.column("Col1",minwidth="20")
-        self.Scrolledtreeview1.column("Col1",stretch="1")
-        self.Scrolledtreeview1.column("Col1",anchor="w")
-        self.Scrolledtreeview1.heading("Col2",text="Col2")
-        self.Scrolledtreeview1.heading("Col2",anchor="center")
-        self.Scrolledtreeview1.column("Col2",width="200")
-        self.Scrolledtreeview1.column("Col2",minwidth="20")
-        self.Scrolledtreeview1.column("Col2",stretch="1")
-        self.Scrolledtreeview1.column("Col2",anchor="w")
-        self.Scrolledtreeview1.heading("Col3",text="Col3")
-        self.Scrolledtreeview1.heading("Col3",anchor="center")
-        self.Scrolledtreeview1.column("Col3",width="200")
-        self.Scrolledtreeview1.column("Col3",minwidth="20")
-        self.Scrolledtreeview1.column("Col3",stretch="1")
-        self.Scrolledtreeview1.column("Col3",anchor="w")
-        self.Scrolledtreeview1.heading("Col4",text="Col4")
-        self.Scrolledtreeview1.heading("Col4",anchor="center")
-        self.Scrolledtreeview1.column("Col4",width="200")
-        self.Scrolledtreeview1.column("Col4",minwidth="20")
-        self.Scrolledtreeview1.column("Col4",stretch="1")
-        self.Scrolledtreeview1.column("Col4",anchor="w")
-        self.Scrolledtreeview1.heading("Col5",text="Col5")
-        self.Scrolledtreeview1.heading("Col5",anchor="center")
-        self.Scrolledtreeview1.column("Col5",width="200")
-        self.Scrolledtreeview1.column("Col5",minwidth="20")
-        self.Scrolledtreeview1.column("Col5",stretch="1")
-        self.Scrolledtreeview1.column("Col5",anchor="w")
+        self.Scrolledtreeview1.heading("#0", text="Tree")
+        self.Scrolledtreeview1.heading("#0", anchor="center")
+        self.Scrolledtreeview1.column("#0", width="115")
+        self.Scrolledtreeview1.column("#0", minwidth="20")
+        self.Scrolledtreeview1.column("#0", stretch="1")
+        self.Scrolledtreeview1.column("#0", anchor="w")
+        self.Scrolledtreeview1.heading("Col1", text="Col1")
+        self.Scrolledtreeview1.heading("Col1", anchor="center")
+        self.Scrolledtreeview1.column("Col1", width="116")
+        self.Scrolledtreeview1.column("Col1", minwidth="20")
+        self.Scrolledtreeview1.column("Col1", stretch="1")
+        self.Scrolledtreeview1.column("Col1", anchor="w")
+        self.Scrolledtreeview1.heading("Col2", text="Col2")
+        self.Scrolledtreeview1.heading("Col2", anchor="center")
+        self.Scrolledtreeview1.column("Col2", width="200")
+        self.Scrolledtreeview1.column("Col2", minwidth="20")
+        self.Scrolledtreeview1.column("Col2", stretch="1")
+        self.Scrolledtreeview1.column("Col2", anchor="w")
+        self.Scrolledtreeview1.heading("Col3", text="Col3")
+        self.Scrolledtreeview1.heading("Col3", anchor="center")
+        self.Scrolledtreeview1.column("Col3", width="200")
+        self.Scrolledtreeview1.column("Col3", minwidth="20")
+        self.Scrolledtreeview1.column("Col3", stretch="1")
+        self.Scrolledtreeview1.column("Col3", anchor="w")
+        self.Scrolledtreeview1.heading("Col4", text="Col4")
+        self.Scrolledtreeview1.heading("Col4", anchor="center")
+        self.Scrolledtreeview1.column("Col4", width="200")
+        self.Scrolledtreeview1.column("Col4", minwidth="20")
+        self.Scrolledtreeview1.column("Col4", stretch="1")
+        self.Scrolledtreeview1.column("Col4", anchor="w")
+        self.Scrolledtreeview1.heading("Col5", text="Col5")
+        self.Scrolledtreeview1.heading("Col5", anchor="center")
+        self.Scrolledtreeview1.column("Col5", width="200")
+        self.Scrolledtreeview1.column("Col5", minwidth="20")
+        self.Scrolledtreeview1.column("Col5", stretch="1")
+        self.Scrolledtreeview1.column("Col5", anchor="w")
         self.Scrolledwindow1 = ScrolledWindow(self.TPanedwindow1_p2)
-        self.Scrolledwindow1.place(relx=0.0, rely=0.0, relheight=1.0
-                , relwidth=1.0, bordermode='ignore')
+        self.Scrolledwindow1.place(
+            relx=0.0, rely=0.0, relheight=1.0, relwidth=1.0, bordermode="ignore"
+        )
         self.Scrolledwindow1.configure(background="white")
         self.Scrolledwindow1.configure(borderwidth="2")
         self.Scrolledwindow1.configure(highlightbackground="#d9d9d9")
@@ -244,32 +309,48 @@ class Toplevel1:
         self.Scrolledwindow1.configure(selectbackground="#c4c4c4")
         self.Scrolledwindow1.configure(selectforeground="black")
         self.color = self.Scrolledwindow1.cget("background")
-        self.Scrolledwindow1_f = tk.Frame(self.Scrolledwindow1,
-                            background=self.color)
-        self.Scrolledwindow1.create_window(0, 0, anchor='nw',
-                                           window=self.Scrolledwindow1_f)
+        self.Scrolledwindow1_f = tk.Frame(self.Scrolledwindow1, background=self.color)
+        self.Scrolledwindow1.create_window(
+            0, 0, anchor="nw", window=self.Scrolledwindow1_f
+        )
         self.Custom1_1 = pyproj_support.Custom(self.PNotebook2_t2_1)
         self.Custom1_1.place(relx=0.0, rely=0.0, relheight=1.0, relwidth=1.0)
-        self.PNotebook2_1.bind('<Button-1>',_button_press)
-        self.PNotebook2_1.bind('<ButtonRelease-1>',_button_release)
-        self.PNotebook2_1.bind('<Motion>',_mouse_over)
-        self.PNotebook3.bind('<Button-1>',_button_press)
-        self.PNotebook3.bind('<ButtonRelease-1>',_button_release)
-        self.PNotebook3.bind('<Motion>',_mouse_over)
-        self.PNotebook1.bind('<Button-1>',_button_press)
-        self.PNotebook1.bind('<ButtonRelease-1>',_button_release)
-        self.PNotebook1.bind('<Motion>',_mouse_over)
-        self.menubar = tk.Menu(top,font="TkMenuFont",bg=_bgcolor,fg=_fgcolor)
-        top.configure(menu = self.menubar)
+        self.PNotebook2_1.bind("<Button-1>", _button_press)
+        self.PNotebook2_1.bind("<ButtonRelease-1>", _button_release)
+        self.PNotebook2_1.bind("<Motion>", _mouse_over)
+        self.PNotebook3.bind("<Button-1>", _button_press)
+        self.PNotebook3.bind("<ButtonRelease-1>", _button_release)
+        self.PNotebook3.bind("<Motion>", _mouse_over)
+        self.PNotebook1.bind("<Button-1>", _button_press)
+        self.PNotebook1.bind("<ButtonRelease-1>", _button_release)
+        self.PNotebook1.bind("<Motion>", _mouse_over)
+        self.menubar = tk.Menu(top, font="TkMenuFont", bg=_bgcolor, fg=_fgcolor)
+        top.configure(menu=self.menubar)
 
-        self.sub_menu = tk.Menu(self.menubar, activebackground='beige'
-                ,activeborderwidth=1, activeforeground='black'
-                ,background='#d9d9d9', borderwidth=1, disabledforeground='#a3a3a3'
-                ,foreground='#000000', tearoff=0)
-        self.menubar.add_cascade(compound='left', label='File', menu=self.sub_menu
-                ,)
-        self.sub_menu.add_command(compound='left',label='save', command=lambda : ApplicationData.save(tkinter.filedialog.asksaveasfilename()))
-        self.sub_menu.add_command(compound='left',label='load', command=self.load)
+        self.sub_menu = tk.Menu(
+            self.menubar,
+            activebackground="beige",
+            activeborderwidth=1,
+            activeforeground="black",
+            background="#d9d9d9",
+            borderwidth=1,
+            disabledforeground="#a3a3a3",
+            foreground="#000000",
+            tearoff=0,
+        )
+        self.menubar.add_cascade(
+            compound="left",
+            label="File",
+            menu=self.sub_menu,
+        )
+        self.sub_menu.add_command(
+            compound="left",
+            label="save",
+            command=lambda: ApplicationData.save(
+                tkinter.filedialog.asksaveasfilename()
+            ),
+        )
+        self.sub_menu.add_command(compound="left", label="load", command=self.load)
 
     def load(self):
         ApplicationData.load(tkinter.filedialog.askopenfilename())
@@ -277,13 +358,16 @@ class Toplevel1:
 
     def __adjust_sash0(self, event):
         paned = event.widget
-        pos = [250, ]
+        pos = [
+            250,
+        ]
         i = 0
         for sash in pos:
             paned.sashpos(i, sash)
             i += 1
-        paned.unbind('<map>', self.__funcid0)
+        paned.unbind("<map>", self.__funcid0)
         del self.__funcid0
+
 
 # The following code is added to handle mouse events with the close icons
 # in PNotebooks widgets.
@@ -292,13 +376,14 @@ def _button_press(event):
     element = widget.identify(event.x, event.y)
     if "close" in element:
         index = widget.index("@%d,%d" % (event.x, event.y))
-        widget.state(['pressed'])
+        widget.state(["pressed"])
         widget._active = index
+
 
 def _button_release(event):
     widget = event.widget
-    if not widget.instate(['pressed']):
-            return
+    if not widget.instate(["pressed"]):
+        return
     element = widget.identify(event.x, event.y)
     try:
         index = widget.index("@%d,%d" % (event.x, event.y))
@@ -308,52 +393,57 @@ def _button_release(event):
         widget.forget(index)
         widget.event_generate("<<NotebookTabClosed>>")
 
-    widget.state(['!pressed'])
+    widget.state(["!pressed"])
     widget._active = None
+
 
 def _mouse_over(event):
     widget = event.widget
     element = widget.identify(event.x, event.y)
     if "close" in element:
-        widget.state(['alternate'])
+        widget.state(["alternate"])
     else:
-        widget.state(['!alternate'])
+        widget.state(["!alternate"])
+
 
 # The following code is added to facilitate the Scrolled widgets you specified.
 class AutoScroll(object):
-    '''Configure the scrollbars for a widget.'''
+    """Configure the scrollbars for a widget."""
+
     def __init__(self, master):
         #  Rozen. Added the try-except clauses so that this class
         #  could be used for scrolled entry widget for which vertical
         #  scrolling is not supported. 5/7/14.
         try:
-            vsb = ttk.Scrollbar(master, orient='vertical', command=self.yview)
+            vsb = ttk.Scrollbar(master, orient="vertical", command=self.yview)
         except:
             pass
-        hsb = ttk.Scrollbar(master, orient='horizontal', command=self.xview)
+        hsb = ttk.Scrollbar(master, orient="horizontal", command=self.xview)
         try:
             self.configure(yscrollcommand=self._autoscroll(vsb))
         except:
             pass
         self.configure(xscrollcommand=self._autoscroll(hsb))
-        self.grid(column=0, row=0, sticky='nsew')
+        self.grid(column=0, row=0, sticky="nsew")
         try:
-            vsb.grid(column=1, row=0, sticky='ns')
+            vsb.grid(column=1, row=0, sticky="ns")
         except:
             pass
-        hsb.grid(column=0, row=1, sticky='ew')
+        hsb.grid(column=0, row=1, sticky="ew")
         master.grid_columnconfigure(0, weight=1)
         master.grid_rowconfigure(0, weight=1)
         # Copy geometry methods of master  (taken from ScrolledText.py)
-        methods = tk.Pack.__dict__.keys() | tk.Grid.__dict__.keys() \
-                  | tk.Place.__dict__.keys()
+        methods = (
+            tk.Pack.__dict__.keys() | tk.Grid.__dict__.keys() | tk.Place.__dict__.keys()
+        )
         for meth in methods:
-            if meth[0] != '_' and meth not in ('config', 'configure'):
+            if meth[0] != "_" and meth not in ("config", "configure"):
                 setattr(self, meth, getattr(master, meth))
 
     @staticmethod
     def _autoscroll(sbar):
-        '''Hide and show scrollbar as needed.'''
+        """Hide and show scrollbar as needed."""
+
         def wrapped(first, last):
             first, last = float(first), float(last)
             if first <= 0 and last >= 1:
@@ -361,86 +451,99 @@ class AutoScroll(object):
             else:
                 sbar.grid()
             sbar.set(first, last)
+
         return wrapped
 
     def __str__(self):
         return str(self.master)
 
+
 def _create_container(func):
-    '''Creates a ttk Frame with a given master, and use this new frame to
-    place the scrollbars and the widget.'''
+    """Creates a ttk Frame with a given master, and use this new frame to
+    place the scrollbars and the widget."""
+
     def wrapped(cls, master, **kw):
         container = ttk.Frame(master)
-        container.bind('<Enter>', lambda e: _bound_to_mousewheel(e, container))
-        container.bind('<Leave>', lambda e: _unbound_to_mousewheel(e, container))
+        container.bind("<Enter>", lambda e: _bound_to_mousewheel(e, container))
+        container.bind("<Leave>", lambda e: _unbound_to_mousewheel(e, container))
         return func(cls, container, **kw)
+
     return wrapped
 
+
 class ScrolledWindow(AutoScroll, tk.Canvas):
-    '''A standard Tkinter Canvas widget with scrollbars that will
-    automatically show/hide as needed.'''
+    """A standard Tkinter Canvas widget with scrollbars that will
+    automatically show/hide as needed."""
+
     @_create_container
     def __init__(self, master, **kw):
         tk.Canvas.__init__(self, master, **kw)
         AutoScroll.__init__(self, master)
 
+
 class ScrolledTreeView(AutoScroll, ttk.Treeview):
-    '''A standard ttk Treeview widget with scrollbars that will
-    automatically show/hide as needed.'''
+    """A standard ttk Treeview widget with scrollbars that will
+    automatically show/hide as needed."""
+
     @_create_container
     def __init__(self, master, **kw):
         ttk.Treeview.__init__(self, master, **kw)
         AutoScroll.__init__(self, master)
 
+
 import platform
+
+
 def _bound_to_mousewheel(event, widget):
     child = widget.winfo_children()[0]
-    if platform.system() == 'Windows' or platform.system() == 'Darwin':
-        child.bind_all('<MouseWheel>', lambda e: _on_mousewheel(e, child))
-        child.bind_all('<Shift-MouseWheel>', lambda e: _on_shiftmouse(e, child))
+    if platform.system() == "Windows" or platform.system() == "Darwin":
+        child.bind_all("<MouseWheel>", lambda e: _on_mousewheel(e, child))
+        child.bind_all("<Shift-MouseWheel>", lambda e: _on_shiftmouse(e, child))
     else:
-        child.bind_all('<Button-4>', lambda e: _on_mousewheel(e, child))
-        child.bind_all('<Button-5>', lambda e: _on_mousewheel(e, child))
-        child.bind_all('<Shift-Button-4>', lambda e: _on_shiftmouse(e, child))
-        child.bind_all('<Shift-Button-5>', lambda e: _on_shiftmouse(e, child))
+        child.bind_all("<Button-4>", lambda e: _on_mousewheel(e, child))
+        child.bind_all("<Button-5>", lambda e: _on_mousewheel(e, child))
+        child.bind_all("<Shift-Button-4>", lambda e: _on_shiftmouse(e, child))
+        child.bind_all("<Shift-Button-5>", lambda e: _on_shiftmouse(e, child))
+
 
 def _unbound_to_mousewheel(event, widget):
-    if platform.system() == 'Windows' or platform.system() == 'Darwin':
-        widget.unbind_all('<MouseWheel>')
-        widget.unbind_all('<Shift-MouseWheel>')
+    if platform.system() == "Windows" or platform.system() == "Darwin":
+        widget.unbind_all("<MouseWheel>")
+        widget.unbind_all("<Shift-MouseWheel>")
     else:
-        widget.unbind_all('<Button-4>')
-        widget.unbind_all('<Button-5>')
-        widget.unbind_all('<Shift-Button-4>')
-        widget.unbind_all('<Shift-Button-5>')
+        widget.unbind_all("<Button-4>")
+        widget.unbind_all("<Button-5>")
+        widget.unbind_all("<Shift-Button-4>")
+        widget.unbind_all("<Shift-Button-5>")
+
 
 def _on_mousewheel(event, widget):
-    if platform.system() == 'Windows':
-        widget.yview_scroll(-1*int(event.delta/120),'units')
-    elif platform.system() == 'Darwin':
-        widget.yview_scroll(-1*int(event.delta),'units')
+    if platform.system() == "Windows":
+        widget.yview_scroll(-1 * int(event.delta / 120), "units")
+    elif platform.system() == "Darwin":
+        widget.yview_scroll(-1 * int(event.delta), "units")
     else:
         if event.num == 4:
-            widget.yview_scroll(-1, 'units')
+            widget.yview_scroll(-1, "units")
         elif event.num == 5:
-            widget.yview_scroll(1, 'units')
+            widget.yview_scroll(1, "units")
+
 
 def _on_shiftmouse(event, widget):
-    if platform.system() == 'Windows':
-        widget.xview_scroll(-1*int(event.delta/120), 'units')
-    elif platform.system() == 'Darwin':
-        widget.xview_scroll(-1*int(event.delta), 'units')
+    if platform.system() == "Windows":
+        widget.xview_scroll(-1 * int(event.delta / 120), "units")
+    elif platform.system() == "Darwin":
+        widget.xview_scroll(-1 * int(event.delta), "units")
     else:
         if event.num == 4:
-            widget.xview_scroll(-1, 'units')
+            widget.xview_scroll(-1, "units")
         elif event.num == 5:
-            widget.xview_scroll(1, 'units')
+            widget.xview_scroll(1, "units")
+
+
 def start_up():
     pyproj_support.main()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     pyproj_support.main()
-
-
-
-

@@ -5,7 +5,6 @@ from src.datamodel.object_permanence.tasks import Task
 
 
 class PermanenceHandler:
-
     def save(self):
         pass
 

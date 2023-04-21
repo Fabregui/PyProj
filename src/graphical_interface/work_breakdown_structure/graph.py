@@ -125,9 +125,17 @@ class WBSCanvas(Canvas):
         self.tasks = [
             WBSTaskGraphicalHandler(self, task) for task in ApplicationData.tasks
         ]
-        ids_to_graphical_handler = {task.task_data.technical_id: task for task in self.tasks}
-        tasks_to_link = [(task, ids_to_graphical_handler[child]) for task in self.tasks for child in task.task_data.children]
-        self.arrows = [ArrowHandler.from_start_and_end(start, end) for start, end in tasks_to_link]
+        ids_to_graphical_handler = {
+            task.task_data.technical_id: task for task in self.tasks
+        }
+        tasks_to_link = [
+            (task, ids_to_graphical_handler[child])
+            for task in self.tasks
+            for child in task.task_data.children
+        ]
+        self.arrows = [
+            ArrowHandler.from_start_and_end(start, end) for start, end in tasks_to_link
+        ]
         self.organize()
 
     def clear_when_no_longer_visible(self, event: Event) -> None:
@@ -272,8 +280,10 @@ class ArrowHandler:
         self.end: Optional[WBSTaskGraphicalHandler] = None
 
     @classmethod
-    def from_start_and_end(cls, start: WBSTaskGraphicalHandler, end: WBSTaskGraphicalHandler) -> "ArrowHandler":
-        obj = cls(start.canvas, 0,0,start)
+    def from_start_and_end(
+        cls, start: WBSTaskGraphicalHandler, end: WBSTaskGraphicalHandler
+    ) -> "ArrowHandler":
+        obj = cls(start.canvas, 0, 0, start)
         obj.end = end
         return obj
 
@@ -345,8 +355,11 @@ class ArrowHandler:
             smooth=True,
         )
         self.canvas.tag_lower(self.graphical_arrow, "window")
-        self.canvas.tag_bind(self.graphical_arrow, "<Button-1>", lambda e: self.delete())
+        self.canvas.tag_bind(
+            self.graphical_arrow, "<Button-1>", lambda e: self.delete()
+        )
         self.canvas.config(cursor="")
+
 
 if __name__ == "__main__":
 

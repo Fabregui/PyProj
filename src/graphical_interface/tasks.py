@@ -12,7 +12,6 @@ def create_new_task(master: Widget) -> Optional[Task]:
 
 
 class TaskWindow(Toplevel):
-
     def __init__(self, master=None):
         super().__init__(master=master)
         self.focus_set()
@@ -32,7 +31,7 @@ class TaskWindow(Toplevel):
         self.is_validated = False
 
     def get_task_values(self) -> Tuple[str]:
-        return (self.name_var.get(), )
+        return (self.name_var.get(),)
 
     def get_new_task(self) -> Optional[Task]:
         if self.is_validated:
