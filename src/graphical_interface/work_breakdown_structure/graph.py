@@ -46,8 +46,14 @@ class WBSCanvas(Canvas):
         self.bind("<Map>", self.load_when_visible)
         self.bind("<Unmap>", self.clear_when_no_longer_visible)
 
-    def canvas_pos(self, event: Event) -> Tuple[int, int]:
-        return self.canvasx(event.x), self.canvasy(event.y)
+        self.tag_bind("arrow", "<Enter>", self.change_cursor_when_on_arrow)
+        self.tag_bind("arrow", "<Leave>", self.change_cursor_when_leave)
+
+    def change_cursor_when_on_arrow(self, event: Event):
+        self.config(cursor="X_cursor")
+
+    def change_cursor_when_leave(self, event: Event):
+        self.config(cursor="")
 
     def create_task(self, event: Event) -> None:
         new_task = Task("undefined")
@@ -97,25 +103,10 @@ class WBSCanvas(Canvas):
             task for task in self.tasks if task.task_data.technical_id == technical_id
         )
 
-    def save(self, path: str):
-        save_data = [task.task_data.serialize() for task in self.tasks]
-
-        with open(path, "w") as file:
-            json.dump(save_data, file, indent=4)
-
     def clear(self):
         self.delete("window")
         self.delete("arrow")
         self.tasks = []
-
-    def load(self, path: str):
-        self.clear()
-        with open(path, "r") as file:
-            save_data = json.load(file, indent=4)
-        tasks = [Task.deserialize(task_data) for task_data in save_data]
-        graphic_tasks = [WBSTaskGraphicalHandler(self, task) for task in tasks]
-        self.tasks.extend(graphic_tasks)
-        self.organize()
 
     def load_when_visible(self, event: Event) -> None:
         self.focus_set()
@@ -254,6 +245,7 @@ class ArrowHandler:
         start_task: WBSTaskGraphicalHandler,
     ):
         self.canvas = canvas
+        self.canvas.config(cursor="boat")
 
         self.x0 = start_x
         self.y0 = start_y
@@ -326,13 +318,14 @@ class ArrowHandler:
             *waypoint1_curve_end,
             *waypoint2_curve_start,
             *waypoint2,
-            waypoint2_curve_end,
+            *waypoint2_curve_end,
             *end,
             arrow="last",
             tags=("arrow",),
             smooth=True,
         )
         self.canvas.tag_lower(self.graphical_arrow, "window")
+        self.canvas.config(cursor="")
 
 
 if __name__ == "__main__":
