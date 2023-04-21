@@ -76,6 +76,11 @@ class WBSCanvas(Canvas):
         self.arrows.append(arrow)
         self.organize()
 
+    def delete_relation(self, arrow: "ArrowHandler") -> None:
+        arrow.start.task_data.remove_child(arrow.end.task_data)
+        self.arrows.remove(arrow)
+        self.organize()
+
     def organize(self):
         self.delete("arrow")
 
@@ -265,6 +270,9 @@ class ArrowHandler:
 
     def delete(self):
         self.canvas.delete(self.graphical_arrow)
+        self.canvas.config(cursor="")
+        if self.end is not None:
+            self.canvas.delete_relation(self)
 
     def draw_between_start_and_end(self):
         """
@@ -325,8 +333,8 @@ class ArrowHandler:
             smooth=True,
         )
         self.canvas.tag_lower(self.graphical_arrow, "window")
+        self.canvas.tag_bind(self.graphical_arrow, "<Button-1>", lambda e: self.delete())
         self.canvas.config(cursor="")
-
 
 if __name__ == "__main__":
 

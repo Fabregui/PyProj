@@ -54,8 +54,15 @@ class Task:
         self.parent = other_task.technical_id
         other_task.children.append(self.technical_id)
 
+    def remove_child(self, other_task: "Task") -> None:
+        self.children.remove(other_task.technical_id)
+        other_task.parent = None
+
     def parent_of(self, other_task: "Task") -> None:
         other_task.children_of(self)
+
+    def remove_parent(self, other_task: "Task"):
+        other_task.remove_child(self)
 
 
 ID_TO_RESOURCE: Dict[int, Task] = {}
