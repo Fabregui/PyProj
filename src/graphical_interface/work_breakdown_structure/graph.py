@@ -5,6 +5,7 @@ from tkinter import Canvas, Tk, Event, NW, Label, LEFT, ttk, BOTTOM, X, RIGHT, Y
 from typing import Tuple, Optional, List, TypeVar
 
 from src import SRC_ROOT_FOLDER
+from src.datamodel.graphics_to_data_interface import ApplicationData
 from src.datamodel.object_permanence.tasks import OnlyOneParent, NoChildOfItself, Task
 
 TASK_DEFAULT_WIDTH = 100
@@ -19,15 +20,18 @@ class WBSFrame(tkinter.Frame):
     def __init__(self, master=None):
         super().__init__(master)
 
-        canvas = WBSCanvas(self)
+        self.canvas = WBSCanvas(self)
 
         self.vsb = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
         self.vsb.pack(side=RIGHT, fill=Y)
         self.hsb = ttk.Scrollbar(self, orient="horizontal", command=self.canvas.xview)
         self.hsb.pack(side=BOTTOM, fill=X)
 
-        canvas.configure(xscrollcommand=self.hsb.set, yscrollcommand=self.vsb.set)
-        canvas.pack(side=LEFT, fill="both", expand=True)
+        self.canvas.configure(xscrollcommand=self.hsb.set, yscrollcommand=self.vsb.set)
+        self.canvas.pack(side=LEFT, fill="both", expand=True)
+
+    def reload(self):
+        self.canvas.reload()
 
 
 class WBSCanvas(Canvas):
@@ -37,22 +41,17 @@ class WBSCanvas(Canvas):
 
         self.tasks: List[WBSTaskGraphicalHandler] = []
         self.tree_structure_handler = TreeStructureHandler(self)
-        self.focus_set()
         self.bind("<Double-1>", self.create_task)
-        self.bind(
-            "s",
-            lambda e: self.save(DEFAULT_FILE_PATH),
-        )
-        self.bind(
-            "l",
-            lambda e: self.load(DEFAULT_FILE_PATH),
-        )
+        self.bind("<Map>", self.load_when_visible)
+        self.bind("<Unmap>", self.clear_when_no_longer_visible)
 
     def canvas_pos(self, event: Event) -> Tuple[int, int]:
         return self.canvasx(event.x), self.canvasy(event.y)
 
     def create_task(self, event: Event) -> None:
-        self.tasks.append(WBSTaskGraphicalHandler(self, Task("undefined")))
+        new_task = Task("undefined")
+        ApplicationData.add_task(new_task)
+        self.tasks.append(WBSTaskGraphicalHandler(self, new_task))
         self.organize()
 
     def organize(self):
@@ -101,6 +100,18 @@ class WBSCanvas(Canvas):
         graphic_tasks = [WBSTaskGraphicalHandler(self, task) for task in tasks]
         self.tasks.extend(graphic_tasks)
         self.organize()
+
+    def load_when_visible(self, event:Event) -> None:
+        self.focus_set()
+        self.reload()
+
+    def reload(self) -> None:
+        self.clear()
+        self.tasks = [WBSTaskGraphicalHandler(self, task) for task in ApplicationData.tasks]
+        self.organize()
+
+    def clear_when_no_longer_visible(self, event: Event) -> None:
+        self.clear()
 
 
 class InvalidLink(Exception):
