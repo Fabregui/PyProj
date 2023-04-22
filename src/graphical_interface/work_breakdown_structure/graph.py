@@ -6,7 +6,7 @@ from typing import Tuple, Optional, List
 from src import SRC_ROOT_FOLDER
 from src.datamodel.graphics_to_data_interface import ApplicationData
 from src.datamodel.object_permanence.tasks import OnlyOneParent, NoChildOfItself, Task
-from src.graphical_interface.tasks import create_new_task
+from src.graphical_interface.tasks import create_new_task, modify_task
 
 TASK_DEFAULT_WIDTH = 100
 TASK_DEFAULT_WIDTH_STEP = 200
@@ -193,7 +193,7 @@ class WBSTaskGraphicalHandler:
         self.task_data = task
         self.graphical_id = f"{self.task_data.name}_{self.task_data.technical_id}"
 
-        text_widget = Label(
+        self.text_widget = Label(
             master=self.canvas,
             bg="grey",
             border=True,
@@ -212,13 +212,14 @@ class WBSTaskGraphicalHandler:
                 "window",
                 self.graphical_id,
             ),
-            window=text_widget,
+            window= self.text_widget,
         )
 
         self.real_arrow: Optional[ArrowHandler] = None
 
-        text_widget.bind("<Button1-Motion>", self.arrow_drag)
-        text_widget.bind("<Button1-ButtonRelease>", self.link_rect)
+        self.text_widget.bind("<Button1-Motion>", self.arrow_drag)
+        self.text_widget.bind("<Button1-ButtonRelease>", self.link_rect)
+        self.text_widget.bind("<Double-1>", self.modify_task)
 
     def get_mouse_position_from_rect(self, event: Event) -> Tuple[int, int]:
         x_rect, y_rect = self.canvas.coords(self.rect)
@@ -250,6 +251,11 @@ class WBSTaskGraphicalHandler:
             self.real_arrow.delete()
         finally:
             self.real_arrow = None
+
+    def modify_task(self, event: Event):
+        new_task = modify_task(self.canvas, self.task_data)
+        if new_task is not None:
+            self.text_widget.configure(text=new_task.name)
 
     def __repr__(self):
         return self.graphical_id
