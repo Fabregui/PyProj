@@ -1,6 +1,6 @@
 import os.path
 import tkinter
-from tkinter import Canvas, Tk, Event, NW, Label, LEFT, ttk, BOTTOM, X, RIGHT, Y
+from tkinter import Canvas, Tk, Event, NW, Label, LEFT, ttk, BOTTOM, X, RIGHT, Y, ALL
 from typing import Tuple, Optional, List
 
 from src import SRC_ROOT_FOLDER
@@ -45,6 +45,7 @@ class WBSCanvas(Canvas):
         self.bind("<Double-1>", self.create_task)
         self.bind("<Map>", self.load_when_visible)
         self.bind("<Unmap>", self.clear_when_no_longer_visible)
+        # TODO: add non-bugged zoom
 
         self.tag_bind("arrow", "<Enter>", self.change_cursor_when_on_arrow)
         self.tag_bind("arrow", "<Leave>", self.change_cursor_when_leave)
@@ -212,7 +213,7 @@ class WBSTaskGraphicalHandler:
                 "window",
                 self.graphical_id,
             ),
-            window= self.text_widget,
+            window=self.text_widget,
         )
 
         self.real_arrow: Optional[ArrowHandler] = None
